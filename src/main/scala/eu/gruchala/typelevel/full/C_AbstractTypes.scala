@@ -1,4 +1,4 @@
-package eu.gruchala.typelevel.base
+package eu.gruchala.typelevel.full
 
 object C_AbstractTypes {
 
@@ -17,6 +17,11 @@ object C_AbstractTypes {
     override def value = 11
   }
 
-  def getValue = ???
+  //given methods which takes a Box object, we can return different types
+  def getValue(b: Box): b.T = b.value
 
+
+  val stringValue: String = getValue(StringBox)
+
+  val intValue: Int = getValue(IntBox)
 }

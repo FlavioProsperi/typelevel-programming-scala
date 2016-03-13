@@ -1,4 +1,4 @@
-package eu.gruchala.typelevel.base
+package eu.gruchala.typelevel.full
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -15,7 +15,7 @@ object F_MagnetPattern {
 
   trait RouteOps {
 
-    //The problem
+    //A problem
     def complete(status: StatusCode): Unit
     def complete(response: HttpResponse): Int
 //    def complete(future: Future[StatusCode]): Unit //does not compile
@@ -24,7 +24,8 @@ object F_MagnetPattern {
     def complete[T](statusCode: StatusCode, obj: T): Int
   }
 
-  val ? = "What is Magnet pattern?"
+  //Magnet pattern is an alternative approach to method overloading. A fix for type erasure and code duplication.
+  //A user-extensible type system.
 
   sealed trait CompletionMagnet {
     type Result
@@ -48,7 +49,12 @@ object F_MagnetPattern {
   object MagnetRoute {
     import CompletionMagnet._
 
-    def complete = ???
+    def complete(magnet: CompletionMagnet): magnet.Result = magnet()
 
+    val statusResponse: CompletionMagnet#Result = complete(StatusCode.Bad_Request)
+    statusResponse.isInstanceOf[Int] // true
+
+    val futureStatusResponse: CompletionMagnet#Result = complete(Future(StatusCode.Ok))
+    futureStatusResponse.isInstanceOf[Unit] // true
   }
 }
