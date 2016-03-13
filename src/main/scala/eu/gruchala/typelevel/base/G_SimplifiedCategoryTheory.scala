@@ -7,11 +7,11 @@ object G_SimplifiedCategoryTheory {
   val about = """
     |If we have some type constructor C[_], types A and B, we want to apply functions of type C[A] => C[B]. These are our options:
     |
-    |(A => B) => FCA] => C[B] - functor (transformation function of arity-1)
+    |(A => B) => FCA] => C[B]
     |
-    |(A => C[B]) => C[A] => C[B] - monad (a flatMap function)
+    |(A => C[B]) => C[A] => C[B]
     |
-    |(C[A => B]) => C[A] => C[B] - applicative (transformation inside the container), BTW applicative functor is a broader concept
+    |(C[A => B]) => C[A] => C[B]
   """.stripMargin
 
   //Generic definition to build functor for any type
@@ -26,28 +26,29 @@ object G_SimplifiedCategoryTheory {
     //applicative - transformation inside
     def apply[A, B](f: C[A => B]): C[A] => C[B]
   }
-
-  class Box[T](val value: T)
+  
+  class Basket[T](val content: T)
 
   object Category {
 
     //Category implementations for needed types
-    implicit object BoxCategory extends Category[Box] {
+    implicit object BasketCategory extends Category[Basket] {
       //functor, takes raw function
-      override def map[A, B](f: (A) => B): (Box[A]) => Box[B] =
-        aBox => new Box[B] (value = f(aBox.value))
+      override def map[A, B](f: (A) => B): (Basket[A]) => Basket[B] =
+        aBasket => new Basket[B] (content = f(aBasket.content))
 
       //monad, takes semi-raw function
-      override def flatMap[A, B](f: (A) => Box[B]): (Box[A]) => Box[B] =
-        aBox => f(aBox.value)
+      override def flatMap[A, B](f: (A) => Basket[B]): (Basket[A]) => Basket[B] =
+        aBasket => f(aBasket.content)
 
       //applicative - transformation inside
-      override def apply[A, B](f: Box[(A) => B]): (Box[A]) => Box[B] =
-        (aBox: Box[A]) => new Box (f.value(aBox.value))
+      override def apply[A, B](f: Basket[(A) => B]): (Basket[A]) => Basket[B] =
+        (aBasket: Basket[A]) => new Basket (f.content(aBasket.content))
     }
 
-    //Let's give our category transformations to any type we have our category implementation
+    //Let's give our category transformations to any type we have category implementation
     implicit class EnrichWithCategory[C[_], A](c: C[A]) {
+
       def map[B](f: A => B)(implicit functor: Category[C]): C[B] =
         functor.map(f)(c)
 
@@ -61,21 +62,21 @@ object G_SimplifiedCategoryTheory {
 
   import Category._
 
-  val stringBox: Box[String] = new Box[String] (value = "stringbox")
+  //We will exchange our Basket from Fruit to its price (Basket[Fruit] => Basket[Double])
+  case class Fruit(name: String)
+  val basketOfFruit: Basket[Fruit] = new Basket[Fruit] (content = Fruit("pear"))
 
   //Functor
-  val length: String => Int = s => s.length
-
-  val intBox: Box[Int] = stringBox.map(length)
+  val toPrice: Fruit => Double = fruit => if (fruit.name == "pear") 2.99 else 0
+  val priceOfFruit: Basket[Double] = basketOfFruit.map(toPrice)
 
   //Monad
-  val lengthOfBox: String => Box[Int] = s => new Box[Int] (value = s.length)
-  val monadIntBox: Box[Int] = stringBox.flatMap(lengthOfBox)
+  val toPriceInNewBasket: Fruit => Basket[Double] = fruit => new Basket[Double] (content = toPrice(fruit))
+  val priceInNewBasket: Basket[Double] = basketOfFruit.flatMap(toPriceInNewBasket)
 
   //Applicative - (transformation inside)
-  //So we have a transformation function inside a Box
-  val boxedLength: Box[String => Int] = new Box(length)
-  //and we can apply it to another Box
-  val applicativeIntBox: Box[Int] = stringBox.apply(boxedLength)
-
+  //We have a transformation function inside a Basket
+  val exchangeBasket: Basket[Fruit => Double] = new Basket(toPrice)
+  //and we can apply it on another Basket (exchange one basket to another with change definition inside the latter) 
+  val againNewBasketWithPrice: Basket[Double] = basketOfFruit.apply(exchangeBasket)
 }
