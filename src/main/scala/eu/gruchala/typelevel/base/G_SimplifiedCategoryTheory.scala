@@ -62,21 +62,23 @@ object G_SimplifiedCategoryTheory {
 
   import Category._
 
-  //We will exchange our Basket from Fruit to its price (Basket[Fruit] => Basket[Double])
-  case class Fruit(name: String)
-  val basketOfFruit: Basket[Fruit] = new Basket[Fruit] (content = Fruit("pear"))
+  //We will exchange our Basket from Fruit to its price (Basket[Fruit] => Basket[Price])
+  trait Fruit { def name: String }
+  trait Price { def value: Double }
+
+  val basketOfFruit: Basket[Fruit] = new Basket[Fruit] (content = new Fruit {def name = "pear"})
 
   //Functor
-  val toPrice: Fruit => Double = fruit => if (fruit.name == "pear") 2.99 else 0
-  val priceOfFruit: Basket[Double] = basketOfFruit.map(toPrice)
+  val toPrice: Fruit => Price = fruit => if (fruit.name == "pear") new Price {def value = 2.99 } else new Price {def value = 9.99 }
+  val priceOfFruit: Basket[Price] = basketOfFruit.map(toPrice)
 
   //Monad
-  val toPriceInNewBasket: Fruit => Basket[Double] = fruit => new Basket[Double] (content = toPrice(fruit))
-  val priceInNewBasket: Basket[Double] = basketOfFruit.flatMap(toPriceInNewBasket)
+  val toPriceInNewBasket: Fruit => Basket[Price] = fruit => new Basket[Price] (content = toPrice(fruit))
+  val priceInNewBasket: Basket[Price] = basketOfFruit.flatMap(toPriceInNewBasket)
 
   //Applicative - (transformation inside)
   //We have a transformation function inside a Basket
-  val exchangeBasket: Basket[Fruit => Double] = new Basket(toPrice)
+  val exchangeBasket: Basket[Fruit => Price] = new Basket(toPrice)
   //and we can apply it on another Basket (exchange one basket to another with change definition inside the latter) 
-  val againNewBasketWithPrice: Basket[Double] = basketOfFruit.apply(exchangeBasket)
+  val againNewBasketWithPrice: Basket[Price] = basketOfFruit.apply(exchangeBasket)
 }
