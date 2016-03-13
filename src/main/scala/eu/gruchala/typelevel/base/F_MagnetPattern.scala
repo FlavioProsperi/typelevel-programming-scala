@@ -25,6 +25,7 @@ object F_MagnetPattern {
   }
 
   //Magnet pattern is an alternative approach to method overloading. A fix for type erasure and code duplication.
+  //A user-extensible type system.
 
   sealed trait CompletionMagnet {
     type Result
@@ -34,14 +35,13 @@ object F_MagnetPattern {
     implicit def fromStatusCode(statusCode: StatusCode): CompletionMagnet =
       new CompletionMagnet {
         override type Result = Int
-        override def apply(): Result = 200 //sophisticated impl
+        override def apply(): Int = if (statusCode == StatusCode.Ok) 200 else 500
       }
 
-    //private[typelevel]
     implicit def fromFutureStatusCode(future: Future[StatusCode]): CompletionMagnet =
       new CompletionMagnet {
         override type Result = Unit
-        override def apply(): Result = () //sophisticated impl
+        override def apply(): Result = future onSuccess { case resp => s"log: Got $resp" }
       }
     //etc.
   }
@@ -55,6 +55,6 @@ object F_MagnetPattern {
     statusResponse.isInstanceOf[Int] // true
 
     val futureStatusResponse: CompletionMagnet#Result = complete(Future(StatusCode.Ok))
-    futureStatusResponse.isInstanceOf[Unit]
+    futureStatusResponse.isInstanceOf[Unit] // true
   }
 }

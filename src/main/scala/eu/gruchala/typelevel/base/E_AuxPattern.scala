@@ -27,8 +27,8 @@ object E_AuxPattern {
   }
 
   object Foo {
-    //This is a predicate. We want compiler to prove that within scope exists evidence that A0 can be converted to B0
-    //If we inform compiler about type B0, we will know type of B - and vice versa! If we have defined type B, we know type B0!
+
+    //Heart of Aux pattern
     type Aux[A0, B0] = Foo[A0] { type B = B0 }
 
     implicit def fooIntToString = new Foo[Int] {
@@ -50,6 +50,9 @@ object E_AuxPattern {
   // does not compile, illegal dependent method type: parameter appears in the type of another parameter in the same section or an earlier one
 //  def foo[A](a: A)(implicit f: Foo[A], opt: Option[f.B]): f.B = opt.getOrElse(f.value)
 
+
+  //f is in fact a predicate. We want compiler to prove that within scope exists evidence that A0 can be converted to B0
+  //If we inform compiler about type B0, we will know type of B - and vice versa! If we have defined type B, we know type B0!
   def foo[A, R](a: A)(implicit f: Foo.Aux[A, R], opt: Option[R]): R = opt.getOrElse(f.value)
 
   implicit val optString: Option[String] = Some("asd")
@@ -59,7 +62,6 @@ object E_AuxPattern {
   val b: Boolean = foo("")
 
 
-  //more real world example
   //real world scenario using shapeless
   import shapeless._
   import shapeless.ops.hlist.Length

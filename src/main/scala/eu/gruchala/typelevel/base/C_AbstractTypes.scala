@@ -17,14 +17,11 @@ object C_AbstractTypes {
     override def value = 11
   }
 
-  //generic method
+  //given methods which takes a Box object, we can return different types
   def getValue(b: Box): b.T = b.value
 
 
   val stringValue: String = getValue(StringBox)
 
   val intValue: Int = getValue(IntBox)
-
-  //TODO find some real world useful example
-
 }
