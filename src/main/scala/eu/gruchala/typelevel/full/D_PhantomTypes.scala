@@ -13,12 +13,15 @@ object D_PhantomTypes {
     //using implicit evidence parameter - compiler must check if S is of the same type as right side: State.WriteOnly
     def write[T <: Writeable](data: T)(implicit ev: S =:= State.WriteOnly): Unit = ()
 
-    def read[T <: Readable](implicit ev: S =:= State.ReadOnly): Readable = new Readable {}
+    def read[T <: Readable[T]](implicit ev: S =:= State.ReadOnly): Readable[T] = new Readable[T] {}
   }
 
+  trait Readable[T]
+  trait Writeable
+  trait PersonEntity extends Readable[PersonEntity]
+  trait Person extends Writeable
+
   object Database {
-    sealed trait Readable
-    sealed trait Writeable
 
     sealed trait State
     object State {
@@ -31,11 +34,11 @@ object D_PhantomTypes {
   }
 
   val readableDB = Database.readOnly
-  readableDB.read
-//  readableDB.write(new Writeable {}) //does not compile
+  readableDB.read[PersonEntity]
+//  readableDB.write(new Person {}) //does not compile
 
   val writeableDB = Database.writeOnly
-//  writeableDB.read //does not compile
-  writeableDB.write(new Writeable {})
+//  writeableDB.read[PersonEntity] //does not compile
+  writeableDB.write(new Person {})
 
 }

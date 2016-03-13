@@ -1,24 +1,5 @@
 package eu.gruchala.typelevel.full
 
-//base
-//trait Foo[A] {
-//  type B
-//  def value: B
-//}
-//
-//object Foo {
-//
-//  implicit def fooIntToString = new Foo[Int] {
-//    override type B = String
-//    override def value: B = "message"
-//  }
-//
-//  implicit def fooStringToBoolean = new Foo[String] {
-//    override type B = Boolean
-//    override def value: B = true
-//  }
-//}
-
 object E_AuxPattern {
 
   trait Foo[A] {
