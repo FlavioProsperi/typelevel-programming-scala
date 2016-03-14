@@ -19,7 +19,7 @@ object D_PhantomTypes {
   readableDB.write(new Person {}) //should not compile
 
   val writeableDB = new Database()
-  readableDB.read[PersonEntity] //should not compile
+  writeableDB.read[PersonEntity] //should not compile
   writeableDB.write(new Person {})
 
 }
