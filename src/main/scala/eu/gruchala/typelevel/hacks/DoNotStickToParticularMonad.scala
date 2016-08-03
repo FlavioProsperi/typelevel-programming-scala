@@ -59,7 +59,7 @@ object DoNotStickToParticularMonad {
 
   //Future is not a strict Monad. It has monadic properties, but does not comply with all 3 Monad laws.
   //Futures are not Monads because they have side effects, whereas Monad contain a value.
-  //Left identity is broken: Try(x) flatMap f == f(x)` will fail if `f` throws an exception
+  //Left identity is broken: Future(x) flatMap f == f(x)` will fail if `f` throws an exception
   //Scala'z Task is like Future but it holds Monad laws and postpones effects till you actually run it (sync or async)
   //https://wiki.haskell.org/Monad_laws
   //http://stackoverflow.com/questions/27454798/is-future-in-scala-a-monad
