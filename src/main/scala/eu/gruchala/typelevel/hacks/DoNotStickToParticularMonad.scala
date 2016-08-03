@@ -55,4 +55,10 @@ object DoNotStickToParticularMonad {
 
     abstractComputation("Leszek")
   }
+
+
+  //Future is not a strict Monad. It has monadic properties, but does not comply with all 3 Monad laws.
+  //Futures are not associative. For more information, see:
+  //https://wiki.haskell.org/Monad_laws
+  //http://stackoverflow.com/questions/27454798/is-future-in-scala-a-monad
 }
