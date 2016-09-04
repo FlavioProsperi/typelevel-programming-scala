@@ -17,7 +17,7 @@ object DoNotStickToParticularMonad {
     } yield result
   }
 
-  //Define abstract Monad-like type (remember Future has flatMap so it's a Monad, perfect for for-comp)
+  //Define abstract Monad-like type
   import scala.language.higherKinds
   trait MonadLike[F[_]] {
     def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
@@ -25,7 +25,7 @@ object DoNotStickToParticularMonad {
     def pure[A](a: A): F[A]
   }
 
-  //define our implicit typeclass Monad[F], let compiler look for Monad which can handle some F type
+  //define our implicit typeclass MonadLike[F], let compiler look for MonadLike which can handle some F type
   def abstractComputation[F[_]: MonadLike](name: String): F[String] = {
     //let's have some Monad to invoke for this example
     val monad = implicitly[MonadLike[F]]
